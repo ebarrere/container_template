@@ -1,0 +1,55 @@
+#!/bin/bash
+
+die() {
+  RC=$1
+  shift 1
+  echo "$@"
+  exit $RC
+}
+
+PROJ_NAME=$1
+PROJ_OWNER=${2:-orion}
+BASE_PATH=~/Documents/code
+PROJ_PATH=${BASE_PATH}/${PROJ_OWNER}/containers/${PROJ_NAME}
+TEMPLATE_URL=https://github.com/ebarrere/mkcnt.git
+
+[ -z $PROJ_NAME ] && die 1 "Usage: $0 <project name> [ orion | personal ]"
+[ -d ${PROJ_PATH} ] && die 3 "${PROJ_PATH} exists"'!'
+GIT=$(which git)
+[ -x ${GIT} ] || die 4 "Could not find git executable in PATH"'!'
+
+# mkdir ${PROJ_PATH} 2>/dev/null || die 3 "Could not create ${PROJ_PATH}"'!'
+${GIT} clone ${TEMPLATE_URL} ${PROJ_PATH}
+eval cd ${PROJ_PATH}
+
+# exit 2
+# [ -f Dockerfile ] && die 2 'Dockerfile exists!'
+
+# cat <<EOF > Dockerfile
+# # FROM registry.access.redhat.com/ubi8/ubi
+# # FROM registry.access.redhat.com/ubi8/ubi-init
+# # FROM registry.access.redhat.com/ubi9/ubi
+# FROM registry.access.redhat.com/ubi9/ubi-init
+# # FROM registry.access.redhat.com/ubi9/ubi-minimal
+# # FROM registry.access.redhat.com/ubi9/ubi-micro
+
+# # ENTRYPOINT /some/path/on/container
+# RUN yum install -y some_package \\
+#  && echo commands
+
+# #COPY ./ipa-ca.crt /etc/pki/ca-trust/source/anchors/
+# #RUN cat /etc/pki/ca-trust/source/anchors/ipa-ca.crt >> /usr/local/lib/python3.8/site-packages/certifi/cacert.pem
+# #RUN update-ca-trust
+
+# #COPY /local/path /remote/path
+# EOF
+
+# git init .
+# git remote add origin https://gitserver.idm.orionspace.com/devops/containers/${PROJ_NAME}.git
+# open Dockerfile -a "Sublime Text"
+
+# cat <<EOF > push.sh
+# podman tag \$(podman build . | tail -1) ${PROJ_NAME}
+# podman push --tls-verify=false ${PROJ_NAME}:latest gitserver.idm.orionspace.com:5050/devops/containers/${PROJ_NAME}
+# EOF
+# chmod +x push.sh
